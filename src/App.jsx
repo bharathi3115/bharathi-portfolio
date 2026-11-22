@@ -1,6 +1,7 @@
 import Hero from './components/Hero.jsx';
 import About from './components/About.jsx';
 import Services from './components/Services.jsx';
+import Projects from './components/Projects.jsx';
 
 export default function App() {
   return (
@@ -8,6 +9,7 @@ export default function App() {
       <Hero />
       <About />
       <Services />
+      <Projects />
     </>
   );
 }
