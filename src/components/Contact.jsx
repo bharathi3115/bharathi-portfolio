@@ -112,12 +112,13 @@ export default function Contact() {
       const name = formData.get('user_name') || '';
       const email = formData.get('user_email') || '';
       const phone = formData.get('user_phone') || '';
-      const subject = formData.get('subject') || 'Portfolio Inquiry';
+      const subject = formData.get('subject') || 'General Inquiry';
+      const emailSubject = `Portfolio message: ${subject}`;
       const message = formData.get('message') || '';
 
       const bodyText = `From: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
       const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
-        subject
+        emailSubject
       )}&body=${encodeURIComponent(bodyText)}`;
 
       window.open(mailtoUrl, '_blank');
