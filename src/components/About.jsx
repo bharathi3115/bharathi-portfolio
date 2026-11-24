@@ -34,7 +34,7 @@ export default function About() {
             scrollTrigger: {
               trigger: desktopHeadingRef.current,
               start: 'top 85%',
-              toggleActions: 'play none none reverse',
+              once: true,
             },
           }
         );
@@ -53,7 +53,7 @@ export default function About() {
             scrollTrigger: {
               trigger: mobileHeadingRef.current,
               start: 'top 85%',
-              toggleActions: 'play none none reverse',
+              once: true,
             },
           }
         );
