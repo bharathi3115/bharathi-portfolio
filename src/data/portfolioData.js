@@ -9,7 +9,7 @@ export const personalInfo = {
   role: "Data Analyst",
   city: "Bangalore, India",
   phone: "9986294856",
-  email: "bharathi3102@gmail.com",
+  email: "bharathi3102a@gmail.com",
 };
 
 export const academy = {
