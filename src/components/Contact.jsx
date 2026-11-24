@@ -116,7 +116,8 @@ export default function Contact() {
       const emailSubject = `Portfolio message: ${subject}`;
       const message = formData.get('message') || '';
 
-      const bodyText = `From: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
+      const phonePart = phone ? `, ${phone}` : '';
+      const bodyText = `From: ${name} (${email}${phonePart})\n\n${message}`;
       const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
         emailSubject
       )}&body=${encodeURIComponent(bodyText)}`;
