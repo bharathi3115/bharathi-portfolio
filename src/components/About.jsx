@@ -100,31 +100,41 @@ export default function About() {
   // Split paragraph into words and determine highlights
   const renderParagraphWords = () => {
     const rawParagraph = aboutContent.paragraph || '';
-    const words = rawParagraph.split(/\s+/).filter(Boolean);
+    const paragraphs = rawParagraph.split(/\n\s*\n/).filter(Boolean);
     const highlights = (aboutContent.highlights || []).map((h) => h.toLowerCase());
 
-    return words.map((word, index) => {
-      const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const isHighlighted = highlights.some((h) => {
-        const cleanH = h.replace(/[^a-z0-9]/g, '');
-        return (
-          cleanH === cleanWord ||
-          h.split(/\s+/).some((part) => part.replace(/[^a-z0-9]/g, '') === cleanWord)
-        );
-      });
+    let wordCounter = 0;
 
+    return paragraphs.map((para, paraIdx) => {
+      const words = para.split(/\s+/).filter(Boolean);
       return (
-        <span
-          key={index}
-          data-word
-          data-highlight={isHighlighted ? 'true' : undefined}
-          className={`inline-block mr-[0.3em] transition-colors duration-150 ${
-            isHighlighted ? 'font-semibold text-white' : ''
-          }`}
-          style={{ color: '#52525b', opacity: 0.2 }}
-        >
-          {word}
-        </span>
+        <p key={paraIdx} className={paraIdx > 0 ? 'mt-4' : ''}>
+          {words.map((word) => {
+            const index = wordCounter++;
+            const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const isHighlighted = highlights.some((h) => {
+              const cleanH = h.replace(/[^a-z0-9]/g, '');
+              return (
+                cleanH === cleanWord ||
+                h.split(/\s+/).some((part) => part.replace(/[^a-z0-9]/g, '') === cleanWord)
+              );
+            });
+
+            return (
+              <span
+                key={index}
+                data-word
+                data-highlight={isHighlighted ? 'true' : undefined}
+                className={`inline-block mr-[0.3em] transition-colors duration-150 ${
+                  isHighlighted ? 'font-semibold text-white' : ''
+                }`}
+                style={{ color: '#52525b', opacity: 0.2 }}
+              >
+                {word}
+              </span>
+            );
+          })}
+        </p>
       );
     });
   };
@@ -186,9 +196,9 @@ export default function About() {
               <h3 className="font-semibold text-white text-xl md:text-2xl mb-4 text-center md:text-left">
                 {aboutContent.greeting}
               </h3>
-              <p className="font-light text-base md:text-[20px] leading-relaxed text-center md:text-left">
+              <div className="font-light text-base md:text-[20px] leading-relaxed text-center md:text-left">
                 {renderParagraphWords()}
-              </p>
+              </div>
             </div>
           </div>
         </div>

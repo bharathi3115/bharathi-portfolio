@@ -33,8 +33,8 @@ export const aboutContent = {
   heading: "Intro",
   greeting: "Hey, I'm Bharathi.",
   paragraph:
-    "A detail-oriented Data Analyst passionate about uncovering actionable insights from complex datasets and transforming raw data into strategic business value. Skilled in SQL, Python, Power BI, and database systems, I focus on building robust queries and intuitive dashboards while sharpening my skills through the placement training program at TAP Academy. Constantly exploring modern analytics and database technologies like MongoDB to drive data-informed decision-making.",
-  highlights: ["SQL", "Python", "Power BI", "MongoDB"],
+    "An aspiring Data Analyst with a strong passion for exploring data, uncovering patterns, and transforming complex datasets into meaningful business insights. I enjoy working with data, asking the right questions, and discovering the stories hidden behind numbers.\n\nSkilled in SQL, Python, Power BI, Excel, and database systems, I focus on data cleaning, analysis, visualization, and building interactive dashboards that support smarter decision-making. Currently gaining practical industry exposure through my internship at TAP Academy, where I continue to strengthen my analytical and technical skills.\n\nI'm constantly curious about how data drives business decisions and passionate about developing solutions that turn raw information into actionable insights. My goal is to grow as a Data Analyst and make a meaningful impact through data-driven thinking.",
+  highlights: ["SQL", "Python", "Power BI", "Excel", "database systems", "TAP Academy"],
 };
 
 export const skillRows = [
@@ -137,4 +137,3 @@ export const emailjsConfig = {
   templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "YOUR_EMAILJS_TEMPLATE_ID",
   publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "YOUR_EMAILJS_PUBLIC_KEY",
 };
-
