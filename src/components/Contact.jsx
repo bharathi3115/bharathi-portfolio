@@ -235,50 +235,81 @@ export default function Contact() {
           }
         }
       } else {
-        // 2. Direct Background Email Delivery to bharathi3102a@gmail.com
-        const response = await fetch(`https://formsubmit.co/ajax/${targetRecipient}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            name: formData.user_name.trim(),
-            email: formData.user_email.trim(),
-            phone: formData.user_phone.trim() || 'Not provided',
-            subject: emailSubject,
-            message: formData.message.trim(),
-            _replyto: formData.user_email.trim(),
-            _subject: emailSubject,
-            _autoresponse: `Hi ${formData.user_name.trim()},\n\nThank you for reaching out through my portfolio website!\n\nI have received your message regarding "${formData.subject.trim() || 'your inquiry'}" and will get back to you as soon as possible.\n\nSummary of your message:\n"${formData.message.trim()}"\n\nBest regards,\nBharathi.O\nData Analyst | Bangalore, India\nEmail: ${targetRecipient} | Phone: 9986294856`,
-            _template: 'table',
-            _captcha: 'false',
-          }),
-        });
+        // 2. Direct Background Email Delivery via local /api/contact or FormSubmit
+        let delivered = false;
 
-        const result = await response.json();
-
-        // Handle one-time FormSubmit activation notice
-        if (result.message && result.message.includes('needs Activation')) {
-          lastSubmitTimeRef.current = Date.now();
-          setStatus('success');
-          setStatusMessage(
-            `Almost ready! FormSubmit sent an activation email to ${targetRecipient}. Please check your Gmail and click 'Activate Form' once. After that, every message lands directly in your Gmail!`
-          );
-          setFormData({
-            user_name: '',
-            user_email: '',
-            user_phone: '',
-            subject: '',
-            message: '',
-            bot_check: '',
+        // Try local server endpoint first (no CORS, no ad-blocker interception)
+        try {
+          const localResp = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: formData.user_name.trim(),
+              email: formData.user_email.trim(),
+              phone: formData.user_phone.trim() || 'Not provided',
+              subject: emailSubject,
+              message: formData.message.trim(),
+              to_email: targetRecipient,
+              _autoresponse: `Hi ${formData.user_name.trim()},\n\nThank you for reaching out through my portfolio website!\n\nI have received your message regarding "${formData.subject.trim() || 'your inquiry'}" and will review it and get back to you as soon as possible.\n\nSummary of your message:\n"${formData.message.trim()}"\n\nBest regards,\nBharathi.O\nData Analyst | Bangalore, India\nEmail: ${targetRecipient} | Phone: 9986294856`,
+            }),
           });
-          setErrors({});
-          return;
+
+          if (localResp.ok) {
+            const data = await localResp.json();
+            if (data.success) {
+              delivered = true;
+            }
+          }
+        } catch (localErr) {
+          console.warn('Local API proxy not reachable, trying direct fallback...', localErr);
         }
 
-        if (!response.ok || result.success === 'false') {
-          throw new Error(result.message || 'Delivery service returned an error.');
+        // Fallback: If local API didn't deliver, submit directly via FormSubmit AJAX
+        if (!delivered) {
+          const directResp = await fetch(`https://formsubmit.co/ajax/${targetRecipient}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({
+              name: formData.user_name.trim(),
+              email: formData.user_email.trim(),
+              phone: formData.user_phone.trim() || 'Not provided',
+              subject: emailSubject,
+              message: formData.message.trim(),
+              _replyto: formData.user_email.trim(),
+              _subject: emailSubject,
+              _autoresponse: `Hi ${formData.user_name.trim()},\n\nThank you for reaching out through my portfolio website!\n\nI have received your message regarding "${formData.subject.trim() || 'your inquiry'}" and will get back to you as soon as possible.\n\nBest regards,\nBharathi.O\nData Analyst | Bangalore, India\nEmail: ${targetRecipient}`,
+              _template: 'table',
+              _captcha: 'false',
+            }),
+          });
+
+          const result = await directResp.json();
+          if (result.message && result.message.includes('needs Activation')) {
+            lastSubmitTimeRef.current = Date.now();
+            setStatus('success');
+            setStatusMessage(
+              `Almost ready! Please check your Gmail (${targetRecipient}) and click 'Activate Form' once. After that, every message lands directly in your Gmail!`
+            );
+            setFormData({
+              user_name: '',
+              user_email: '',
+              user_phone: '',
+              subject: '',
+              message: '',
+              bot_check: '',
+            });
+            setErrors({});
+            return;
+          }
+
+          if (!directResp.ok || result.success === 'false') {
+            throw new Error(result.message || 'Delivery service returned an error.');
+          }
         }
       }
 
