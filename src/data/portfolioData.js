@@ -168,7 +168,8 @@ export const footerContent = {
 
 // EmailJS — values come from .env.local (variables must start with VITE_)
 export const emailjsConfig = {
-  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || "YOUR_EMAILJS_SERVICE_ID",
-  templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "YOUR_EMAILJS_TEMPLATE_ID",
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "YOUR_EMAILJS_PUBLIC_KEY",
+  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || "",
+  templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "",
+  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "",
+  autoReplyTemplateId: import.meta.env.VITE_EMAILJS_AUTOREPLY_TEMPLATE_ID || "",
 };
