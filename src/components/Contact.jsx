@@ -189,74 +189,96 @@ export default function Contact() {
       formData.subject.trim() ||
       `New Portfolio Contact Message – ${formData.user_name.trim()}`;
 
-    // If EmailJS credentials are not yet configured in .env.local, use mailto fallback
-    if (!isConfigured) {
-      const phonePart = formData.user_phone ? `, ${formData.user_phone}` : '';
-      const bodyText = `From: ${formData.user_name.trim()} (${formData.user_email.trim()}${phonePart})\n\n${formData.message.trim()}`;
-      const mailtoUrl = `mailto:${targetRecipient}?subject=${encodeURIComponent(
-        emailSubject
-      )}&body=${encodeURIComponent(bodyText)}`;
-
-      window.open(mailtoUrl, '_blank');
-      setStatus('success');
-      setStatusMessage(
-        'Opening your email app to send your message directly to Bharathi...'
-      );
-      setFormData({
-        user_name: '',
-        user_email: '',
-        user_phone: '',
-        subject: '',
-        message: '',
-        bot_check: '',
-      });
-      setErrors({});
-      setTimeout(() => setStatus('idle'), 6000);
-      return;
-    }
-
-    // Full EmailJS dispatch
+    // Email dispatch: uses EmailJS if keys are set, otherwise uses direct FormSubmit background service
     try {
       setStatus('sending');
       setStatusMessage('');
 
-      const emailjs = await import('@emailjs/browser');
+      if (isConfigured) {
+        // 1. EmailJS path (when environment keys are provided)
+        const emailjs = await import('@emailjs/browser');
 
-      // 1. Send main message notification to Bharathi
-      const notificationParams = {
-        to_name: 'Bharathi',
-        to_email: targetRecipient,
-        from_name: formData.user_name.trim(),
-        from_email: formData.user_email.trim(),
-        from_phone: formData.user_phone.trim() || 'Not provided',
-        subject: emailSubject,
-        message: formData.message.trim(),
-        reply_to: formData.user_email.trim(),
-      };
+        const notificationParams = {
+          to_name: 'Bharathi',
+          to_email: targetRecipient,
+          from_name: formData.user_name.trim(),
+          from_email: formData.user_email.trim(),
+          from_phone: formData.user_phone.trim() || 'Not provided',
+          subject: emailSubject,
+          message: formData.message.trim(),
+          reply_to: formData.user_email.trim(),
+        };
 
-      await emailjs.default.send(serviceId, templateId, notificationParams, publicKey);
+        await emailjs.default.send(serviceId, templateId, notificationParams, publicKey);
 
-      // 2. Dispatch automatic confirmation email to the visitor if template is configured
-      if (
-        autoReplyTemplateId &&
-        autoReplyTemplateId !== 'YOUR_EMAILJS_AUTOREPLY_TEMPLATE_ID'
-      ) {
-        try {
-          const autoReplyParams = {
-            to_name: formData.user_name.trim(),
-            to_email: formData.user_email.trim(),
-            subject: `Thank you for contacting Bharathi.O`,
+        // Optional auto-reply template for EmailJS
+        if (
+          autoReplyTemplateId &&
+          autoReplyTemplateId !== 'YOUR_EMAILJS_AUTOREPLY_TEMPLATE_ID'
+        ) {
+          try {
+            const autoReplyParams = {
+              to_name: formData.user_name.trim(),
+              to_email: formData.user_email.trim(),
+              subject: `Thank you for contacting Bharathi.O`,
+              message: formData.message.trim(),
+              reply_to: targetRecipient,
+            };
+            await emailjs.default.send(
+              serviceId,
+              autoReplyTemplateId,
+              autoReplyParams,
+              publicKey
+            );
+          } catch (autoErr) {
+            console.warn('Auto-reply confirmation warning:', autoErr);
+          }
+        }
+      } else {
+        // 2. Direct Background Email Delivery to bharathi3102a@gmail.com
+        const response = await fetch(`https://formsubmit.co/ajax/${targetRecipient}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.user_name.trim(),
+            email: formData.user_email.trim(),
+            phone: formData.user_phone.trim() || 'Not provided',
+            subject: emailSubject,
             message: formData.message.trim(),
-            reply_to: targetRecipient,
-          };
-          await emailjs.default.send(
-            serviceId,
-            autoReplyTemplateId,
-            autoReplyParams,
-            publicKey
+            _replyto: formData.user_email.trim(),
+            _subject: emailSubject,
+            _autoresponse: `Hi ${formData.user_name.trim()},\n\nThank you for reaching out through my portfolio website!\n\nI have received your message regarding "${formData.subject.trim() || 'your inquiry'}" and will get back to you as soon as possible.\n\nSummary of your message:\n"${formData.message.trim()}"\n\nBest regards,\nBharathi.O\nData Analyst | Bangalore, India\nEmail: ${targetRecipient} | Phone: 9986294856`,
+            _template: 'table',
+            _captcha: 'false',
+          }),
+        });
+
+        const result = await response.json();
+
+        // Handle one-time FormSubmit activation notice
+        if (result.message && result.message.includes('needs Activation')) {
+          lastSubmitTimeRef.current = Date.now();
+          setStatus('success');
+          setStatusMessage(
+            `Almost ready! FormSubmit sent an activation email to ${targetRecipient}. Please check your Gmail and click 'Activate Form' once. After that, every message lands directly in your Gmail!`
           );
-        } catch (autoErr) {
-          console.warn('Auto-reply confirmation warning:', autoErr);
+          setFormData({
+            user_name: '',
+            user_email: '',
+            user_phone: '',
+            subject: '',
+            message: '',
+            bot_check: '',
+          });
+          setErrors({});
+          return;
+        }
+
+        if (!response.ok || result.success === 'false') {
+          throw new Error(result.message || 'Delivery service returned an error.');
         }
       }
 
@@ -276,10 +298,10 @@ export default function Contact() {
       setErrors({});
       setTimeout(() => setStatus('idle'), 8000);
     } catch (err) {
-      console.error('EmailJS submission error:', err);
+      console.error('Email submission error:', err);
       setStatus('error');
       setStatusMessage(
-        `Failed to deliver message via email service. Please try again or email directly at ${targetRecipient}.`
+        `Failed to deliver message (${err.message || 'Network error'}). Please try again or email directly at ${targetRecipient}.`
       );
       setTimeout(() => setStatus('idle'), 7000);
     }
