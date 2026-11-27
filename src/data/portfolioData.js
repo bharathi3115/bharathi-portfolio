@@ -110,6 +110,41 @@ export const projectsContent = {
       liveUrl: "https://campus-bazar-8y9b.vercel.app/",
       githubUrl: "https://github.com/bharathi3115",
     },
+    {
+      id: "project-2",
+      number: "03",
+      title: ["ROAD ACCIDENT", "ANALYSIS DASHBOARD"],
+      category: "Data Analytics | Power BI | Numpy | Pandas",
+      tags: ["Power BI", "Data Analytics", "Data Visualization", "DAX"],
+      description:
+        "An interactive Power BI dashboard developed to analyze road accident trends, casualties, and contributing factors. It provides insights into accident severity, road types, weather conditions, lighting conditions, accident timings, and geographical patterns to help identify road safety trends and support data-driven decisions.",
+      primaryBtnLabel: "VIEW DASHBOARD",
+      hasDashboardModal: true,
+      githubUrl: "https://github.com/bharathi3115",
+      images: [
+        {
+          id: "road-accident-overview",
+          label: "Accident Overview",
+          title: "Accident Overview & Trends",
+          description:
+            "Key metrics on total accidents (2M), casualties (2M), vehicles (3M), fatal accidents (26K), along with yearly trends, day-of-week distribution, and accident severity.",
+        },
+        {
+          id: "road-accident-environment",
+          label: "Road & Environment",
+          title: "Road & Environmental Analysis",
+          description:
+            "Accidents by road type, weather conditions, urban vs rural area distribution, light conditions, and time of day breakdown.",
+        },
+        {
+          id: "road-accident-casualty-analysis",
+          label: "Surface & Casualty",
+          title: "Road Surface & Casualty Analysis",
+          description:
+            "Accident distribution by road surface conditions, casualties by accident severity, and the relationship between vehicles, accidents, and casualties.",
+        },
+      ],
+    },
   ],
 };
 
